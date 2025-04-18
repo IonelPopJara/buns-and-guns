@@ -3,3 +3,46 @@ body {
   background: black;
   overflow: hidden!important;
 }
+
+.ui {
+  width: 100%;
+  position: absolute;
+  height: 100%;
+}
+
+.shotgun-reticle {
+  position: absolute;
+  width: 3px;
+  height: 3px;
+  background: white;
+  border-radius: 50%;
+  left: 50%;
+  top: 50%;
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.shotgun-reticle::after {
+  content: "";
+  position: absolute;
+  width: 80px;
+  height: 50px;
+  border-radius: 50%;
+  border: 2px solid white;
+  left: 50%;
+  top: 50%;
+  mask: linear-gradient(90deg, black, transparent, transparent, black);
+  transform: translateX(-50%) translateY(-50%);
+}
+
+.shotgun-reticle::before {
+  content: "";
+  position: absolute;
+  width: 65px;
+  height: 40px;
+  border-radius: 50%;
+  border: 2px solid white;
+  left: 50%;
+  top: 50%;
+  mask: linear-gradient(90deg, black, transparent, transparent, transparent, transparent, black);
+  transform: translateX(-50%) translateY(-50%);
+}
