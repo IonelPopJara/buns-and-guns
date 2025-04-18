@@ -1,18 +1,16 @@
-import * as THREE from 'three';
-import * as Camera from './camera';
+import * as THREE from "three";
+import * as Camera from "./camera";
+import { meshes } from "./meshes";
 
 const clock = new THREE.Clock();
 const scene = new THREE.Scene();
 
-const mesh = new THREE.Mesh(
-  new THREE.BoxGeometry(1, 1, 1),
-  new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
-);
-
-scene.add(mesh);
+meshes.forEach((mesh) => {
+  scene.add(mesh);
+});
 
 const gridHelper = new THREE.GridHelper(50, 50);
-gridHelper.position.y = - 1;
+gridHelper.position.y = 0;
 
 scene.add(gridHelper);
 
@@ -24,7 +22,6 @@ Camera.init(scene);
   requestAnimationFrame(anim);
 
   if (Camera.update(delta)) {
-    console.log('rendered');
+    console.log("rendered");
   }
-
 })();
