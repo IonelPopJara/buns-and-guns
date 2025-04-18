@@ -11,7 +11,7 @@ function init(_scene) {
     renderer = new THREE.WebGLRenderer();
     camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100);
 
-    camera.position.set(0, 0, 5);
+    camera.position.set(0, 0, 0.1);
 
     renderer.render(scene, camera);
     document.body.appendChild(renderer.domElement);
