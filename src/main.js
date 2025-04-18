@@ -1,28 +1,51 @@
-import * as THREE from "three";
+import * as THREE from 'three';
+import CameraControls from 'camera-controls';
 
+CameraControls.install({ THREE: THREE });
+
+const width = window.innerWidth;
+const height = window.innerHeight;
+const clock = new THREE.Clock();
 const scene = new THREE.Scene();
-const camera = new THREE.PerspectiveCamera(
-  75,
-  window.innerWidth / window.innerHeight,
-  0.1,
-  1000
-);
-
+const camera = new THREE.PerspectiveCamera(60, width / height, 0.01, 100);
+camera.position.set(0, 0, 5);
 const renderer = new THREE.WebGLRenderer();
-renderer.setSize(window.innerWidth, window.innerHeight);
-renderer.setAnimationLoop(animate);
+renderer.setSize(width, height);
 document.body.appendChild(renderer.domElement);
 
-const geometry = new THREE.BoxGeometry(1, 1, 1);
-const material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
-const cube = new THREE.Mesh(geometry, material);
-scene.add(cube);
+const cameraControls = new CameraControls(camera, renderer.domElement);
 
-camera.position.z = 5;
+const mesh = new THREE.Mesh(
+  new THREE.BoxGeometry(1, 1, 1),
+  new THREE.MeshBasicMaterial({ color: 0xff0000, wireframe: true })
+);
+scene.add(mesh);
 
-function animate() {
-  cube.rotation.x += 0.01;
-  cube.rotation.y += 0.01;
+const gridHelper = new THREE.GridHelper(50, 50);
+gridHelper.position.y = - 1;
+scene.add(gridHelper);
 
-  renderer.render(scene, camera);
-}
+renderer.render(scene, camera);
+
+(function anim() {
+
+  const delta = clock.getDelta();
+  const elapsed = clock.getElapsedTime();
+  const updated = cameraControls.update(delta);
+
+  // if ( elapsed > 30 ) { return; }
+
+  requestAnimationFrame(anim);
+
+  if (updated) {
+    renderer.render(scene, camera);
+    console.log('rendered');
+  }
+
+})();
+
+// make variable available to browser console
+globalThis.THREE = THREE;
+globalThis.camera = camera;
+globalThis.cameraControls = cameraControls;
+globalThis.mesh = mesh;
