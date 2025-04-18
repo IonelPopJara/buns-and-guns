@@ -10,7 +10,7 @@ meshes.forEach((mesh) => {
 });
 
 const gridHelper = new THREE.GridHelper(50, 50);
-gridHelper.position.y = 0;
+gridHelper.position.y = -1;
 
 scene.add(gridHelper);
 

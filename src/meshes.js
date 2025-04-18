@@ -3,11 +3,14 @@ import * as THREE from "three";
 const meshes = [];
 
 let layout = `
-+-----+
-|     |
-|  x  |
-|     |
-+-----+
++------------+
+|            |
+|  x  +-+  +-|
+|     |      |
++-----+      |
+|            |
+|            |
++------------+
 `;
 parseLayout(layout);
 
@@ -36,9 +39,24 @@ function parseLayout(layout) {
       const actualX = x - startPos.x;
       const actualY = y - startPos.y;
 
+      let width = 2;
+      let height = 1;
+      let color = 0xff0000;
+
+      if (lines[y][x] === "+") {
+        continue;
+        width = 1;
+        height = 1;
+        color = 0x00ff00;
+      }
+
       const mesh = new THREE.Mesh(
-        new THREE.PlaneGeometry(2, 1),
-        new THREE.MeshBasicMaterial({ color: 0xff0000, side: THREE.DoubleSide })
+        new THREE.PlaneGeometry(width, height),
+        new THREE.MeshBasicMaterial({
+          color: color,
+          side: THREE.DoubleSide,
+          wireframe: true,
+        })
       );
 
       console.log("X: ", actualX, "Y: ", actualY);
@@ -54,16 +72,5 @@ function parseLayout(layout) {
     }
   }
 }
-
-// // Create 10 meshes
-// for (let i = 0; i < 10; i++) {
-//   if (i % 2 === 0) {
-//     mesh.rotation.y = Math.PI / 2; // Rotate 90 degrees
-//   }
-
-//   mesh.position.x = i * 2;
-//   mesh.position.z = i * 2;
-//   meshes.push(mesh);
-// }
 
 export { meshes };
