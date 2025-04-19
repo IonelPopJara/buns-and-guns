@@ -2,20 +2,19 @@ import * as THREE from "three";
 import { Collider, Direction } from "./collider";
 
 export default class Entity extends THREE.Object3D {
-  constructor(cameraWrapper, scene) {
+  constructor(cameraWrapper, scene, position) {
     super();
     this._camera = cameraWrapper.camera;
     // Get the camera collider
     this._cameraCollider = cameraWrapper.collider;
 
-    this._mesh = _createMesh();
+    this._mesh = _createMesh(position.x, position.y);
     this._collider = new Collider(this._mesh, scene);
     this.add(this._mesh);
   }
 
   update(delta) {
     // Update logic for the entity can be added here
-
     this._mesh.lookAt(this._camera.position);
 
     // Get the world direction of the entity
@@ -57,11 +56,11 @@ export default class Entity extends THREE.Object3D {
   }
 }
 
-function _createMesh() {
+function _createMesh(x, y) {
   // Create a mesh to simulate the enemy
   const geometry = new THREE.PlaneGeometry(0.5, 1.3);
   const mesh = new THREE.Mesh(geometry);
-  mesh.position.set(0, -0.5, -4);
+  mesh.position.set(x, -0.5, y);
 
   // Load the texture
   const textureLoader = new THREE.TextureLoader();
@@ -70,21 +69,10 @@ function _createMesh() {
     const material = new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
-      // color: 0xffffff,
-      // wireframe: true,
     });
 
     mesh.material = material;
   });
-  // const mesh = new THREE.Mesh(,
-  //   geometry,
-  //   new THREE.MeshBasicMaterial({
-  //     color: 0xff00f0,
-  //     // side: THREE.DoubleSide,
-  //     //   wireframe: true,
-  //   })
-  // );
-  // mesh.position.set(0, 0, -4);
 
   return mesh;
 }

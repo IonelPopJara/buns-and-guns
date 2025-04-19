@@ -1,11 +1,9 @@
 import * as THREE from "three";
 import {
   ChromaticAberrationEffect,
-  ColorDepthEffect,
-  DotScreenEffect,
-  EffectComposer, EffectPass,
-  OutlineEffect, PixelationEffect,
-  RenderPass, ToneMappingEffect, VignetteEffect
+  ColorDepthEffect, EffectComposer, 
+  EffectPass, PixelationEffect,
+  RenderPass, VignetteEffect
 } from "postprocessing";
 import { Vector2 } from "three/webgpu";
 
