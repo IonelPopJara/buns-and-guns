@@ -1,7 +1,8 @@
 import * as THREE from "three";
-import Player from './player'
+import Player from "./player";
 import { meshes } from "./meshes";
 import CameraWrapper from "./camera";
+import Entity from "./entity";
 
 const clock = new THREE.Clock();
 
@@ -11,9 +12,10 @@ scene.fog = new THREE.Fog( 0x000000, 1, 15 );
 const camera = new CameraWrapper(scene);
 const player = new Player(camera, scene);
 
-meshes.forEach((mesh) => {
-  scene.add(mesh);
-});
+scene.add(meshes);
+const enemy = new Entity(camera, scene);
+const enemyMesh = enemy.mesh;
+scene.add(enemyMesh);
 
 const gridHelper = new THREE.GridHelper(50, 50);
 gridHelper.position.y = -1;
@@ -28,10 +30,11 @@ scene.add(gridHelper);
 
   // Add more updates (entities, guns)
   // forceCameraUpdate = entity.update(delta) || forceCameraUpdate;
-  shouldUpdate = player.update(delta);
-  
+  shouldUpdate = player.update(delta) || enemy.update(delta);
+
   if (shouldUpdate) {
     camera.update(delta);
+    enemy.update(delta);
 
     console.log("Rendered!");
   }

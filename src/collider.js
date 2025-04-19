@@ -1,72 +1,113 @@
 import * as THREE from "three";
 
 const Direction = {
-    FORWARD: 0,
-    BACKWARD: 1,
-    LEFT: 2,
-    RIGHT: 3,
-}
+  FORWARD: 0,
+  BACKWARD: 1,
+  LEFT: 2,
+  RIGHT: 3,
+};
 
 class Collider {
-    _scene;
-    _object;
+  _scene;
+  _object;
 
-    constructor(object, scene) {
-        this._scene = scene;
-        this._object = object;
+  constructor(object, scene) {
+    this._scene = scene;
+    this._object = object;
+  }
+
+  _raycast(direction) {
+    const raycaster = new THREE.Raycaster();
+
+    raycaster.set(this._object.position, direction);
+    const intersects = raycaster.intersectObjects(
+      this._scene.children.filter((object) => {
+        return object.type != "GridHelper";
+      })
+    );
+
+    if (intersects.length > 0) {
+      return intersects[0];
+    } else {
+      return null;
+    }
+  }
+
+  _raycastWithCamera(direction, camera) {
+    const raycaster = new THREE.Raycaster();
+
+    raycaster.set(this._object.position, direction);
+    const objects = this._scene.children.filter((object) => {
+      return object.type != "GridHelper";
+    });
+    objects.push(camera);
+
+    const intersects = raycaster.intersectObjects(objects);
+
+    if (intersects.length > 0) {
+      return intersects[0];
+    } else {
+      return null;
+    }
+  }
+
+  getAllowedTravelDistance(direction) {
+    const worldDirection = new THREE.Vector3();
+    this._object.getWorldDirection(worldDirection);
+    worldDirection.normalize();
+
+    if (direction == Direction.RIGHT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 1.5, 0, "XYZ"));
+    } else if (direction == Direction.BACKWARD) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI, 0, "XYZ"));
+    } else if (direction == Direction.LEFT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 0.5, 0, "XYZ"));
     }
 
-    _raycast(direction) {
-        const raycaster = new THREE.Raycaster();
+    const collideData = this._raycast(worldDirection);
 
-        raycaster.set(this._object.position, direction);
-        const intersects = raycaster.intersectObjects(
-            this._scene.children.filter((object) => {
-                return object.type != "GridHelper";
-            })
-        );
+    return collideData != null ? Math.max(0, collideData.distance - 0.5) : 1000; // big enough to not constraint movements
+  }
 
-        if (intersects.length > 0) {
-            return intersects[0];
-        } else {
-            return null;
-        }
+  // Make a decorator for getAllowedTravelDistance to add the camera to the list of objects to intersect
+  getAllowedTravelDistanceWithCamera(direction, camera) {
+    const worldDirection = new THREE.Vector3();
+    this._object.getWorldDirection(worldDirection);
+    worldDirection.normalize();
+
+    if (direction == Direction.RIGHT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 1.5, 0, "XYZ"));
+    } else if (direction == Direction.BACKWARD) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI, 0, "XYZ"));
+    } else if (direction == Direction.LEFT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 0.5, 0, "XYZ"));
     }
 
-    getAllowedTravelDistance(direction) {
-        const worldDirection = new THREE.Vector3();
-        this._object.getWorldDirection(worldDirection);
-        worldDirection.normalize();
+    const collideData = this._raycastWithCamera(worldDirection, camera);
 
-        if (direction == Direction.RIGHT) {
-            worldDirection.applyEuler(new THREE.Euler(
-                0,
-                Math.PI * 1.5,
-                0,
-                'XYZ'
-            ))
-        } else if (direction == Direction.BACKWARD) {
-            worldDirection.applyEuler(new THREE.Euler(
-                0,
-                Math.PI,
-                0,
-                'XYZ'
-            ))
-        } else if (direction == Direction.LEFT) {
-            worldDirection.applyEuler(new THREE.Euler(
-                0,
-                Math.PI * 0.5,
-                0,
-                'XYZ'
-            ))
-        }
+    return collideData != null ? Math.max(0, collideData.distance - 0.5) : 1000; // big enough to not constraint movements
+  }
 
-        const collideData = this._raycast(worldDirection);
+  getFirstIntersect(direction, camera) {
+    const worldDirection = new THREE.Vector3();
+    this._object.getWorldDirection(worldDirection);
+    worldDirection.normalize();
 
-        return collideData != null ?
-            Math.max(0, collideData.distance - 0.5)
-            : 1000; // big enough to not constraint movements
+    if (direction == Direction.RIGHT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 1.5, 0, "XYZ"));
+    } else if (direction == Direction.BACKWARD) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI, 0, "XYZ"));
+    } else if (direction == Direction.LEFT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 0.5, 0, "XYZ"));
     }
+
+    const collideData = this._raycastWithCamera(worldDirection, camera);
+
+    console.log("collideData");
+    console.log(collideData);
+
+    return collideData != null ? collideData.object.name : null;
+  }
 }
 
-export { Collider, Direction }
+export { Collider, Direction };
