@@ -1,56 +1,45 @@
 import * as THREE from 'three';
-import PlayerController from './controller'
 
-export default class Camera {
+export default class CameraWrapper {
     _scene;
-    _camera;
-    _renderer;
-    _playerController;
-    _hasRenderedFirstFrame;
+
+    camera;
+    renderer;
 
     constructor(_scene) {
         if (_scene == null) {
-            console.error("_scene cannot be null.");
+            console.error("Scene cannot be null.");
             return;
         }
 
         this._scene = _scene;
         this._hasRenderedFirstFrame = false;
-        this._renderer = new THREE.WebGLRenderer();
-        this._camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100);
-        this._camera.position.set(0, 0, 0.1);
-        this._playerController = new PlayerController(this._camera, this._scene, this._renderer);
+        this.renderer = new THREE.WebGLRenderer();
+        this.camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100);
+        this.camera.position.set(0, 0, 0.1);
 
-        this._renderer.render(_scene, this._camera);
-        document.body.appendChild(this._renderer.domElement);
+        this.renderer.render(_scene, this.camera);
+        document.body.appendChild(this.renderer.domElement);
 
         window.addEventListener('resize', () => this._resizeCamera());
         this._resizeCamera();
     }
 
     _resizeCamera() {
-        this._renderer.setSize(window.innerWidth, window.innerHeight);
+        this.renderer.setSize(window.innerWidth, window.innerHeight);
 
-        this._camera.aspect = window.innerWidth / window.innerHeight;
-        this._camera.updateProjectionMatrix();
+        this.camera.aspect = window.innerWidth / window.innerHeight;
+        this.camera.updateProjectionMatrix();
 
-        this._renderer.render(this._scene, this._camera);
+        this.renderer.render(this._scene, this.camera);
     }
 
-    update(delta) {
+    update() {
         if (this._scene == null) {
             console.error("Camera must be initialized before updating.");
             return;
         }
 
-        const result = this._playerController.update(delta)
-
-        if (result || !this._hasRenderedFirstFrame) {
-            this._renderer.render(this._scene, this._camera);
-        }
-
-        this._hasRenderedFirstFrame = true;
-
-        return result;
+        this.renderer.render(this._scene, this.camera);
     }
 }

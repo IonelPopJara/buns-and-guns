@@ -1,10 +1,12 @@
 import * as THREE from "three";
-import Camera from "./camera";
+import Player from './player'
 import { meshes } from "./meshes";
+import CameraWrapper from "./camera";
 
 const clock = new THREE.Clock();
 const scene = new THREE.Scene();
-const camera = new Camera(scene);
+const camera = new CameraWrapper(scene);
+const player = new Player(camera, scene);
 
 meshes.forEach((mesh) => {
   scene.add(mesh);
@@ -17,10 +19,17 @@ scene.add(gridHelper);
 
 (function anim() {
   const delta = clock.getDelta();
-
   requestAnimationFrame(anim);
 
-  if (camera.update(delta)) {
-    console.log("rendered");
+  let shouldUpdate = false;
+
+  // Add more updates (entities, guns)
+  // forceCameraUpdate = entity.update(delta) || forceCameraUpdate;
+  shouldUpdate = player.update(delta);
+  
+  if (shouldUpdate) {
+    camera.update(delta);
+
+    console.log("Rendered!");
   }
 })();
