@@ -1,44 +1,67 @@
 import * as THREE from 'three';
-import * as Controls from './controller'
+import Controller from './controller'
 
-var renderer;
-var camera;
-var scene;
+export default class Camera {
+    _scene;
+    _camera;
+    _renderer;
+    _controller;
 
-function init(_scene) {
-    scene = _scene;
+    constructor(_scene) {
+        if (_scene == null) {
+            console.error("_scene cannot be null.");
+            return;
+        }
 
-    renderer = new THREE.WebGLRenderer();
-    camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100);
+        this._scene = _scene;
+        this._renderer = new THREE.WebGLRenderer();
+        this._camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100);
+        this._camera.position.set(0, 0, 0.1);
+        this._controller = new Controller(this._camera, this._renderer);
 
-    camera.position.set(0, 0, 0.1);
+        this._renderer.render(_scene, this._camera);
+        document.body.appendChild(this._renderer.domElement);
 
-    renderer.render(scene, camera);
-    document.body.appendChild(renderer.domElement);
-
-    Controls.init(camera, renderer);
-
-    window.addEventListener('resize', () => resizeCamera(scene));
-    resizeCamera(scene);
-}
-
-function resizeCamera(scene) {
-    renderer.setSize(window.innerWidth, window.innerHeight);
-
-    camera.aspect = window.innerWidth / window.innerHeight;
-    camera.updateProjectionMatrix();
-
-    renderer.render(scene, camera);
-}
-
-function update(delta) {
-    const result = Controls.update(delta)
-
-    if (result) {
-        renderer.render(scene, camera);
+        window.addEventListener('resize', () => this._resizeCamera());
+        this._resizeCamera();
     }
 
-    return result;
-}
+    _resizeCamera() {
+        this._renderer.setSize(window.innerWidth, window.innerHeight);
 
-export { init, update }
+        this._camera.aspect = window.innerWidth / window.innerHeight;
+        this._camera.updateProjectionMatrix();
+
+        this._renderer.render(this._scene, this._camera);
+    }
+
+    raycast(direction) {
+        const raycaster = new THREE.Raycaster();
+
+        raycaster.set(this._camera.position, direction);
+        const intersects = raycaster.intersectObjects(this._scene.children.filter((object) => {
+            return object.type != "GridHelper";
+        }));
+
+        if (intersects.length > 0) {
+            return intersects[0];
+        } else {
+            return null;
+        }
+    }
+
+    update(delta) {
+        if (this._scene == null) {
+            console.error("Camera must be initialized before updating.");
+            return;
+        }
+
+        const result = this._controller.update(delta)
+
+        if (result) {
+            this._renderer.render(this._scene, this._camera);
+        }
+
+        return result;
+    }
+}

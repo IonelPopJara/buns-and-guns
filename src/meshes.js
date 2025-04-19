@@ -47,7 +47,7 @@ function parseLayout(layout) {
             y + position < lines.length &&
             lines[y + position][x] === "|") {
 
-            const mesh = createMesh(0.5, 1, 0x00ff00);
+            const mesh = createMesh(0.5, 0x00ff00);
 
             mesh.position.x = actualX;
             mesh.position.z = actualY + position * 0.25;
@@ -61,7 +61,7 @@ function parseLayout(layout) {
             x + position < lines[y].length &&
             lines[y][x + position] === "-") {
 
-            const mesh = createMesh(0.5, 1, 0x00ff00);
+            const mesh = createMesh(0.5, 0x00ff00);
 
             mesh.position.x = actualX + position * 0.25;
             mesh.position.z = actualY;
@@ -70,7 +70,7 @@ function parseLayout(layout) {
           }
         }
       } else {
-        const mesh = createMesh(1, 1, 0xff0000);
+        const mesh = createMesh(1, 0xff0000);
 
         mesh.position.x = actualX;
         mesh.position.z = actualY;
@@ -84,13 +84,13 @@ function parseLayout(layout) {
     }
   }
 
-  function createMesh(width, height, color) {
+  function createMesh(width, color) {
     return new THREE.Mesh(
-      new THREE.PlaneGeometry(width, height),
+      new THREE.PlaneGeometry(width, 2),
       new THREE.MeshBasicMaterial({
         color: color,
         side: THREE.DoubleSide,
-        wireframe: true,
+        wireframe: false,
       })
     );
   }

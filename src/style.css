@@ -15,6 +15,7 @@ body {
   width: 3px;
   height: 3px;
   background: white;
+  mix-blend-mode: difference;
   border-radius: 50%;
   left: 50%;
   top: 50%;
