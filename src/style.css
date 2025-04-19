@@ -47,3 +47,12 @@ body {
   mask: linear-gradient(90deg, black, transparent, transparent, transparent, transparent, black);
   transform: translateX(-50%) translateY(-50%);
 }
+
+.gun {
+  position: absolute;
+  object-fit: cover;
+  height: 100%;
+  left: 50%;
+  bottom: 0;
+  transform: translateX(-50%);
+}

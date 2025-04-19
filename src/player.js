@@ -2,6 +2,7 @@ import * as THREE from "three";
 import CameraControls from "camera-controls";
 import * as HoldEvent from "https://unpkg.com/hold-event@0.2.0/dist/hold-event.module.js";
 import { Collider, Direction } from "./collider";
+import Gun from "./gun";
 
 const HOLD_DURATION = 16.666;
 const AIM_SENSITIVITY = 0.13;
@@ -19,6 +20,7 @@ const KEYCODE = {
 export default class Player {
   _controls;
   _collider;
+  _gun;
 
   constructor(cameraWrapper, scene) {
     CameraControls.install({THREE: THREE});
@@ -26,6 +28,7 @@ export default class Player {
     this._controls = new CameraControls(cameraWrapper.camera,
       cameraWrapper.renderer.domElement);
     this._collider = new Collider(cameraWrapper.camera, scene);
+    this._gun = new Gun();
 
     // WASD block
     new HoldEvent.KeyboardKeyHold(KEYCODE.W, HOLD_DURATION).addEventListener(
