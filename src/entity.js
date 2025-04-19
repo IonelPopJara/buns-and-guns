@@ -65,7 +65,7 @@ function _createMesh() {
 
   // Load the texture
   const textureLoader = new THREE.TextureLoader();
-  textureLoader.load("../miku.png", (texture) => {
+  textureLoader.load("/textures/entity/miku.png", (texture) => {
     // Set the texture to the mesh material
     const material = new THREE.MeshBasicMaterial({
       map: texture,

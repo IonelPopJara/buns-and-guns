@@ -7,32 +7,22 @@ import Entity from "./entity";
 const clock = new THREE.Clock();
 
 const scene = new THREE.Scene();
-scene.fog = new THREE.Fog( 0x000000, 1, 15 );
+scene.fog = new THREE.Fog(0x000000, 1, 10);
 
 const camera = new CameraWrapper(scene);
 const player = new Player(camera, scene);
 
 scene.add(meshes);
+
 const enemy = new Entity(camera, scene);
 const enemyMesh = enemy.mesh;
 scene.add(enemyMesh);
 
-const gridHelper = new THREE.GridHelper(50, 50);
-gridHelper.position.y = -1;
-
-scene.add(gridHelper);
-
-(function anim() {
+(function render() {
   const delta = clock.getDelta();
-  requestAnimationFrame(anim);
+  requestAnimationFrame(render);
 
-  let shouldUpdate = false;
-
-  // Add more updates (entities, guns)
-  // forceCameraUpdate = entity.update(delta) || forceCameraUpdate;
-  shouldUpdate = player.update(delta) || enemy.update(delta);
-
-  if (shouldUpdate) {
+  if (player.update(delta) || enemy.update(delta)) {
     camera.update(delta);
     enemy.update(delta);
 

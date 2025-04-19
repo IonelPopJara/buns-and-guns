@@ -1,4 +1,4 @@
-const PATH = "/gun/";
+const PATH = "/textures/gun/";
 const FRAMES = 7;
 const TIMEOUT = 42;
 

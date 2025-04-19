@@ -27,21 +27,6 @@ let layout = `
 `;
 parseLayout(layout);
 
-function createMesh(width, color) {
-  const mesh = new THREE.Mesh(
-    new THREE.PlaneGeometry(width, 2),
-    new THREE.MeshBasicMaterial({
-      color: color,
-      side: THREE.DoubleSide,
-      // wireframe: false,
-      wireframe: true,
-    })
-  );
-
-  mesh.name = "shit";
-  return mesh;
-}
-
 function parseLayout(layout) {
   const lines = layout
     .split("\n")
@@ -78,9 +63,9 @@ function parseLayout(layout) {
 
             let mesh;
             if (position > 0) {
-              mesh = createMesh(0.5, '/wall_thin_left.png', '/wall_light_map.png');
+              mesh = createMesh(0.5, '/textures/level/wall_thin_left.png', '/textures/level/wall_thin_left_normal_map.png', '/textures/level/wall_light_map.png');
             } else {
-              mesh = createMesh(0.5, '/wall_thin_right.png', '/wall_light_map.png');
+              mesh = createMesh(0.5, '/textures/level/wall_thin_right.png', '/textures/level/wall_thin_right_normal_map.png', '/textures/level/wall_light_map.png');
             }
 
             mesh.position.x = actualX;
@@ -98,9 +83,9 @@ function parseLayout(layout) {
 
             let mesh;
             if (position < 0) {
-              mesh = createMesh(0.5, '/wall_thin_left.png', '/wall_light_map.png');
+              mesh = createMesh(0.5, '/textures/level/wall_thin_left.png', '/textures/level/wall_thin_left_normal_map.png', '/textures/level/wall_light_map.png');
             } else {
-              mesh = createMesh(0.5, '/wall_thin_right.png', '/wall_light_map.png');
+              mesh = createMesh(0.5, '/textures/level/wall_thin_right.png', '/textures/level/wall_thin_right_normal_map.png', '/textures/level/wall_light_map.png');
             }
             mesh.position.x = actualX + position * 0.25;
             mesh.position.z = actualY;
@@ -109,7 +94,7 @@ function parseLayout(layout) {
           }
         }
       } else {
-        const mesh = createMesh(1, '/wall.png', '/wall_light_map.png');
+        const mesh = createMesh(1, '/textures/level/wall.png', '/textures/level/wall_normal_map.png', '/textures/level/wall_light_map.png');
 
         mesh.position.x = actualX;
         mesh.position.z = actualY;
@@ -121,13 +106,34 @@ function parseLayout(layout) {
         meshes.add(mesh);
       }
     }
+
+    const texture = new THREE.TextureLoader().load('/textures/level/floor.png');
+    texture.wrapS = THREE.RepeatWrapping;
+    texture.wrapT = THREE.RepeatWrapping;
+    texture.repeat.set(1000, 1000);
+
+    const floor = new THREE.Mesh(
+      new THREE.PlaneGeometry(1000, 1000),
+      new THREE.MeshBasicMaterial({
+        map: texture,
+        aoMap: new THREE.TextureLoader().load('/textures/level/wall_normal_map.png'),
+        aoMapIntensity: 1.2,
+        wireframe: false,
+      })
+    );
+    floor.position.y = -1;
+    floor.rotation.x = -Math.PI / 2;
+
+    meshes.add(floor);
   }
 
-  function createMesh(width, mapPath, lightMapPath) {
+  function createMesh(width, mapPath, uvMap, lightMapPath) {
     return new THREE.Mesh(
       new THREE.PlaneGeometry(width, 2),
       new THREE.MeshBasicMaterial({
         map: new THREE.TextureLoader().load(mapPath),
+        aoMap: new THREE.TextureLoader().load(uvMap),
+        aoMapIntensity: 1.2,
         lightMap: new THREE.TextureLoader().load(lightMapPath),
         lightMapIntensity: 5,
         side: THREE.DoubleSide,
