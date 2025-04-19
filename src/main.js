@@ -1,8 +1,8 @@
 import * as THREE from "three";
 import Player from "./player";
-import { meshes } from "./meshes";
 import CameraWrapper from "./camera";
 import Entity from "./entity";
+import LevelManager from "./levels/levelManager";
 
 const clock = new THREE.Clock();
 
@@ -12,7 +12,8 @@ scene.fog = new THREE.Fog(0x000000, 1, 10);
 const camera = new CameraWrapper(scene);
 const player = new Player(camera, scene);
 
-scene.add(meshes);
+const levelManager = new LevelManager();
+scene.add(levelManager.loadLevel(1));
 
 const enemy = new Entity(camera, scene);
 const enemyMesh = enemy.mesh;
