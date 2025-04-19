@@ -1,11 +1,12 @@
 import * as THREE from 'three';
-import Controller from './controller'
+import PlayerController from './controller'
 
 export default class Camera {
     _scene;
     _camera;
     _renderer;
-    _controller;
+    _playerController;
+    _hasRenderedFirstFrame;
 
     constructor(_scene) {
         if (_scene == null) {
@@ -14,10 +15,11 @@ export default class Camera {
         }
 
         this._scene = _scene;
+        this._hasRenderedFirstFrame = false;
         this._renderer = new THREE.WebGLRenderer();
         this._camera = new THREE.PerspectiveCamera(60, 1, 0.01, 100);
         this._camera.position.set(0, 0, 0.1);
-        this._controller = new Controller(this._camera, this._renderer);
+        this._playerController = new PlayerController(this._camera, this._scene, this._renderer);
 
         this._renderer.render(_scene, this._camera);
         document.body.appendChild(this._renderer.domElement);
@@ -35,32 +37,19 @@ export default class Camera {
         this._renderer.render(this._scene, this._camera);
     }
 
-    raycast(direction) {
-        const raycaster = new THREE.Raycaster();
-
-        raycaster.set(this._camera.position, direction);
-        const intersects = raycaster.intersectObjects(this._scene.children.filter((object) => {
-            return object.type != "GridHelper";
-        }));
-
-        if (intersects.length > 0) {
-            return intersects[0];
-        } else {
-            return null;
-        }
-    }
-
     update(delta) {
         if (this._scene == null) {
             console.error("Camera must be initialized before updating.");
             return;
         }
 
-        const result = this._controller.update(delta)
+        const result = this._playerController.update(delta)
 
-        if (result) {
+        if (result || !this._hasRenderedFirstFrame) {
             this._renderer.render(this._scene, this._camera);
         }
+
+        this._hasRenderedFirstFrame = true;
 
         return result;
     }
