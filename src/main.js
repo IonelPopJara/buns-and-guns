@@ -8,7 +8,7 @@ const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x000000, 1, 10);
 const camera = new CameraWrapper(scene);
 const player = new Player(camera, scene);
-const levelManager = new LevelManager();
+const levelManager = new LevelManager(player);
 
 (function render() {
   const delta = clock.getDelta();

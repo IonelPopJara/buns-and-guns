@@ -1,19 +1,19 @@
 import * as THREE from "three";
 import { levels } from "./levelData";
 import Entity from "../entity";
-import { bool } from "three/tsl";
 
 const PATH = "/textures/level/";
-const WALL_MESH_NAME = "Wall";
-const FLOOR_MESH_NAME = "Floor";
-
-const ENTITY_MESH_NAME = "Entity";
+const ENTITY_MESH_TYPE = "Entity";
+const WALL_MESH_TYPE = "Wall";
+const FLOOR_MESH_TYPE = "Floor";
 
 export default class LevelManager {
   _textures;
   _levelData;
+  _player;
 
-  constructor() {
+  constructor(player) {
+    this._player = player;
     const textureLoader = new THREE.TextureLoader();
 
     const floorTexture = textureLoader.load(PATH + '/floor.png');
@@ -61,8 +61,6 @@ export default class LevelManager {
   }
 
   _loadLevel(cameraWrapper, scene) {
-    console.log(!!this._currentLevel)
-
     if (this._currentLevel === undefined ||
       this._currentLevel === null ||
       this._currentLevel < 0 ||
@@ -105,6 +103,7 @@ export default class LevelManager {
           const enemy = new Entity(cameraWrapper, scene,
             { x: actualX, y: actualY }
           );
+          enemy.mesh.type = ENTITY_MESH_TYPE;
 
           levelData.entities.push(enemy);
           levelData.meshes.add(enemy.mesh);
@@ -126,7 +125,7 @@ export default class LevelManager {
 
               mesh.rotation.y = Math.PI / 2;
 
-              mesh.name = WALL_MESH_NAME;
+              mesh.type = WALL_MESH_TYPE;
               levelData.meshes.add(mesh);
             }
 
@@ -144,7 +143,7 @@ export default class LevelManager {
               mesh.position.x = actualX + position * 0.25;
               mesh.position.z = actualY;
 
-              mesh.name = WALL_MESH_NAME;
+              mesh.type = WALL_MESH_TYPE;
               levelData.meshes.add(mesh);
             }
           }
@@ -158,7 +157,7 @@ export default class LevelManager {
             mesh.rotation.y = Math.PI / 2;
           }
 
-          mesh.name = WALL_MESH_NAME;
+          mesh.type = WALL_MESH_TYPE;
           levelData.meshes.add(mesh);
         }
       }
@@ -171,9 +170,38 @@ export default class LevelManager {
       floor.position.y = -1;
       floor.rotation.x = -Math.PI / 2;
 
-      floor.name = FLOOR_MESH_NAME;
+      floor.type = FLOOR_MESH_TYPE;
       levelData.meshes.add(floor);
     }
+
+    this._player.setOnGunFireEventHandler(
+      function (calculateDamage, origin, direction) {
+        const raycaster = new THREE.Raycaster();
+        raycaster.set(origin, direction);
+
+        const intersects = raycaster.intersectObjects(
+          levelData.meshes.children.filter((object) => {
+            return object.type == "Entity";
+          })
+        );
+
+        if (intersects.length > 0) {
+          for (const entity of levelData.entities) {
+            if (entity.mesh.id == intersects[0].object.id) {
+              if (entity.damage(calculateDamage(intersects[0].distance))) {
+                levelData.meshes.remove(intersects[0].object);
+                scene.remove(intersects[0].object);
+
+                levelData.entities = levelData.entities.filter((object) => {
+                  return object != entity;
+                })
+              }
+
+              break;
+            }
+          }
+        }
+      }.bind(this));
 
     return levelData;
   }

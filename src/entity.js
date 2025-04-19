@@ -1,11 +1,24 @@
 import * as THREE from "three";
 import { Collider, Direction } from "./collider";
+import { Vector3 } from "three/webgpu";
+
+const MAX_HP = 8;
 
 export default class Entity extends THREE.Object3D {
+  _cameraCollider;
+  _collider;
+  _camera;
+  _scene;
+  _mesh;
+  _hp;
+
   constructor(cameraWrapper, scene, position) {
     super();
+
+    this._hp = MAX_HP;
+
+    this._scene = scene;
     this._camera = cameraWrapper.camera;
-    // Get the camera collider
     this._cameraCollider = cameraWrapper.collider;
 
     this._mesh = _createMesh(position.x, position.y);
@@ -13,39 +26,71 @@ export default class Entity extends THREE.Object3D {
     this.add(this._mesh);
   }
 
+  _animateDeath() {
+    // TODO: add animation
+    console.log(this.uuid + " killed")
+  }
+
+  _animateHit() {
+    // TODO: add animation
+    console.log(this.uuid + " hit")
+  }
+
+  /**
+   * @returns `true` if the entity was killed
+   */
+  damage(damage) {
+    if (this._hp <= 0 || damage <= 0) {
+      return false;
+    }
+
+    this._hp -= damage;
+
+    if (this._hp <= 0) {
+      this._animateDeath();
+      return true
+    }
+
+    this._animateHit();
+    return false;
+  }
+
   update(delta) {
     // Update logic for the entity can be added here
-    this._mesh.lookAt(this._camera.position);
+    this._mesh.lookAt(new Vector3(this._camera.position.x,
+      this._mesh.position.y, this._camera.position.z));
 
-    // Get the world direction of the entity
-    const entityDirection = new THREE.Vector3();
-    this._mesh.getWorldDirection(entityDirection);
-    entityDirection.normalize();
+    if (this._hp > 0) { // still alive
+      // Get the world direction of the entity
+      const entityDirection = new THREE.Vector3();
+      this._mesh.getWorldDirection(entityDirection);
+      entityDirection.normalize();
 
-    // Get the first intersection with the camera
-    const firstIntersectName = this._collider.getFirstIntersect(
-      entityDirection,
-      this._cameraCollider
-    );
+      // Get the first intersection with the camera
+      const firstIntersectName = this._collider.getFirstIntersect(
+        entityDirection,
+        this._cameraCollider
+      );
 
-    if (firstIntersectName === "cameraCollider") {
-      // Update position
-      if (
-        this._collider.getAllowedTravelDistanceWithCamera(
-          Direction.FORWARD,
-          this._cameraCollider
-        ) > 0
-      ) {
-        // Create a new vector without the y component
-        const newDirection = new THREE.Vector3(
-          entityDirection.x,
-          0,
-          entityDirection.z
-        );
-        this._mesh.position.addScaledVector(newDirection, 0.1 * delta);
+      if (firstIntersectName === "cameraCollider") {
+        // Update position
+        if (
+          this._collider.getAllowedTravelDistanceWithCamera(
+            Direction.FORWARD,
+            this._cameraCollider
+          ) > 0
+        ) {
+          // Create a new vector without the y component
+          const newDirection = new THREE.Vector3(
+            entityDirection.x,
+            0,
+            entityDirection.z
+          );
+          this._mesh.position.addScaledVector(newDirection, 0.1 * delta);
+        }
+
+        return true;
       }
-
-      return true;
     }
 
     return false;

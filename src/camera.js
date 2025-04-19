@@ -38,7 +38,7 @@ export default class CameraWrapper {
 
     // Create a camera mesh
     const cameraCollider = new THREE.Mesh(
-      new THREE.SphereGeometry(0.5), // or BoxGeometry
+      new THREE.BoxGeometry(0.5, 100), // basically, infinitely tall
       new THREE.MeshBasicMaterial({ visible: false }) // or true if debugging
     );
     cameraCollider.position.copy(this.camera.position);
