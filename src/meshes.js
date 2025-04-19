@@ -1,6 +1,6 @@
 import * as THREE from "three";
 
-const meshes = [];
+const meshes = new THREE.Group();
 
 let layout = `
 +---------------------+
@@ -26,6 +26,21 @@ let layout = `
 +---------------------+
 `;
 parseLayout(layout);
+
+function createMesh(width, color) {
+  const mesh = new THREE.Mesh(
+    new THREE.PlaneGeometry(width, 2),
+    new THREE.MeshBasicMaterial({
+      color: color,
+      side: THREE.DoubleSide,
+      // wireframe: false,
+      wireframe: true,
+    })
+  );
+
+  mesh.name = "shit";
+  return mesh;
+}
 
 function parseLayout(layout) {
   const lines = layout
@@ -56,10 +71,11 @@ function parseLayout(layout) {
 
       if (lines[y][x] === "+") {
         for (let position = -1; position <= 1; position++) {
-          if (y + position >= 0 &&
+          if (
+            y + position >= 0 &&
             y + position < lines.length &&
-            lines[y + position][x] === "|") {
-
+            lines[y + position][x] === "|"
+          ) {
             const mesh = createMesh(0.5, 0x00ff00);
 
             mesh.position.x = actualX;
@@ -67,19 +83,20 @@ function parseLayout(layout) {
 
             mesh.rotation.y = Math.PI / 2;
 
-            meshes.push(mesh);
+            meshes.add(mesh);
           }
 
-          if (x + position >= 0 &&
+          if (
+            x + position >= 0 &&
             x + position < lines[y].length &&
-            lines[y][x + position] === "-") {
-
+            lines[y][x + position] === "-"
+          ) {
             const mesh = createMesh(0.5, 0x00ff00);
 
             mesh.position.x = actualX + position * 0.25;
             mesh.position.z = actualY;
 
-            meshes.push(mesh);
+            meshes.add(mesh);
           }
         }
       } else {
@@ -92,20 +109,9 @@ function parseLayout(layout) {
           mesh.rotation.y = Math.PI / 2;
         }
 
-        meshes.push(mesh);
+        meshes.add(mesh);
       }
     }
-  }
-
-  function createMesh(width, color) {
-    return new THREE.Mesh(
-      new THREE.PlaneGeometry(width, 2),
-      new THREE.MeshBasicMaterial({
-        color: color,
-        side: THREE.DoubleSide,
-        wireframe: false,
-      })
-    );
   }
 }
 
