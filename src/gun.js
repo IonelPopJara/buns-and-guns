@@ -1,4 +1,4 @@
-const PATH = "./src/assets/gun/";
+const PATH = "/gun/";
 const FRAMES = 7;
 const TIMEOUT = 42;
 

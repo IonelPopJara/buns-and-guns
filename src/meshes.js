@@ -60,7 +60,12 @@ function parseLayout(layout) {
             y + position < lines.length &&
             lines[y + position][x] === "|") {
 
-            const mesh = createMesh(0.5, 0x00ff00);
+            let mesh;
+            if (position > 0) {
+              mesh = createMesh(0.5, '/wall_thin_left.png', '/wall_light_map.png');
+            } else {
+              mesh = createMesh(0.5, '/wall_thin_right.png', '/wall_light_map.png');
+            }
 
             mesh.position.x = actualX;
             mesh.position.z = actualY + position * 0.25;
@@ -74,7 +79,12 @@ function parseLayout(layout) {
             x + position < lines[y].length &&
             lines[y][x + position] === "-") {
 
-            const mesh = createMesh(0.5, 0x00ff00);
+            let mesh;
+            if (position < 0) {
+              mesh = createMesh(0.5, '/wall_thin_left.png', '/wall_light_map.png');
+            } else {
+              mesh = createMesh(0.5, '/wall_thin_right.png', '/wall_light_map.png');
+            }
 
             mesh.position.x = actualX + position * 0.25;
             mesh.position.z = actualY;
@@ -83,7 +93,7 @@ function parseLayout(layout) {
           }
         }
       } else {
-        const mesh = createMesh(1, 0xff0000);
+        const mesh = createMesh(1, '/wall.png', '/wall_light_map.png');
 
         mesh.position.x = actualX;
         mesh.position.z = actualY;
@@ -97,13 +107,16 @@ function parseLayout(layout) {
     }
   }
 
-  function createMesh(width, color) {
+  function createMesh(width, mapPath, lightMapPath) {
     return new THREE.Mesh(
       new THREE.PlaneGeometry(width, 2),
       new THREE.MeshBasicMaterial({
-        color: color,
+        map: new THREE.TextureLoader().load(mapPath),
+        lightMap: new THREE.TextureLoader().load(lightMapPath),
+        lightMapIntensity: 5,
         side: THREE.DoubleSide,
         wireframe: false,
+        transparent: true
       })
     );
   }

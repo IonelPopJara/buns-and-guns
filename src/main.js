@@ -4,7 +4,10 @@ import { meshes } from "./meshes";
 import CameraWrapper from "./camera";
 
 const clock = new THREE.Clock();
+
 const scene = new THREE.Scene();
+scene.fog = new THREE.Fog( 0x000000, 1, 15 );
+
 const camera = new CameraWrapper(scene);
 const player = new Player(camera, scene);
 
