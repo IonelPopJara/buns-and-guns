@@ -15,6 +15,7 @@ export default class Entity extends THREE.Object3D {
 
   update(delta) {
     // Update logic for the entity can be added here
+
     this._mesh.lookAt(this._camera.position);
 
     // Get the world direction of the entity
@@ -36,7 +37,13 @@ export default class Entity extends THREE.Object3D {
           this._cameraCollider
         ) > 0
       ) {
-        this._mesh.position.addScaledVector(entityDirection, 1.0 * delta);
+        // Create a new vector without the y component
+        const newDirection = new THREE.Vector3(
+          entityDirection.x,
+          0,
+          entityDirection.z
+        );
+        this._mesh.position.addScaledVector(newDirection, 0.1 * delta);
       }
 
       return true;
@@ -52,17 +59,32 @@ export default class Entity extends THREE.Object3D {
 
 function _createMesh() {
   // Create a mesh to simulate the enemy
-  const geometry = new THREE.PlaneGeometry(1, 2);
+  const geometry = new THREE.PlaneGeometry(0.5, 1.3);
+  const mesh = new THREE.Mesh(geometry);
+  mesh.position.set(0, -0.5, -4);
 
-  const mesh = new THREE.Mesh(
-    geometry,
-    new THREE.MeshBasicMaterial({
-      color: 0xff00f0,
-      // side: THREE.DoubleSide,
-      //   wireframe: true,
-    })
-  );
-  mesh.position.set(0, 0, -4);
+  // Load the texture
+  const textureLoader = new THREE.TextureLoader();
+  textureLoader.load("../miku.png", (texture) => {
+    // Set the texture to the mesh material
+    const material = new THREE.MeshBasicMaterial({
+      map: texture,
+      transparent: true,
+      // color: 0xffffff,
+      // wireframe: true,
+    });
+
+    mesh.material = material;
+  });
+  // const mesh = new THREE.Mesh(,
+  //   geometry,
+  //   new THREE.MeshBasicMaterial({
+  //     color: 0xff00f0,
+  //     // side: THREE.DoubleSide,
+  //     //   wireframe: true,
+  //   })
+  // );
+  // mesh.position.set(0, 0, -4);
 
   return mesh;
 }

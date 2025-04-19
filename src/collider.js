@@ -103,9 +103,6 @@ class Collider {
 
     const collideData = this._raycastWithCamera(worldDirection, camera);
 
-    console.log("collideData");
-    console.log(collideData);
-
     return collideData != null ? collideData.object.name : null;
   }
 }
