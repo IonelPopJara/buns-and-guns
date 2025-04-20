@@ -18,41 +18,41 @@ export default class LevelManager {
     this._forceFrameUpdate = false;
     const textureLoader = new THREE.TextureLoader();
 
-    const floorTexture = textureLoader.load(PATH + '/floor.png');
+    const floorTexture = textureLoader.load(PATH + "/floor.png");
     floorTexture.wrapS = THREE.RepeatWrapping;
     floorTexture.wrapT = THREE.RepeatWrapping;
     floorTexture.repeat.set(1000, 1000);
 
     this._textures = {
       wall: new THREE.MeshBasicMaterial({
-        map: textureLoader.load(PATH + 'wall.png'),
-        aoMap: textureLoader.load(PATH + 'wall_normal_map.png'),
+        map: textureLoader.load(PATH + "wall.png"),
+        aoMap: textureLoader.load(PATH + "wall_normal_map.png"),
         aoMapIntensity: 1.2,
         side: THREE.DoubleSide,
-        lightMap: textureLoader.load(PATH + 'wall_light_map.png'),
+        lightMap: textureLoader.load(PATH + "wall_light_map.png"),
         lightMapIntensity: 5,
-        transparent: true
+        transparent: true,
       }),
       wall_thin_left: new THREE.MeshBasicMaterial({
-        map: textureLoader.load(PATH + 'wall_thin_left.png'),
-        aoMap: textureLoader.load(PATH + 'wall_thin_left_normal_map.png'),
+        map: textureLoader.load(PATH + "wall_thin_left.png"),
+        aoMap: textureLoader.load(PATH + "wall_thin_left_normal_map.png"),
         aoMapIntensity: 1.2,
         side: THREE.DoubleSide,
-        lightMap: textureLoader.load(PATH + 'wall_light_map.png'),
+        lightMap: textureLoader.load(PATH + "wall_light_map.png"),
         lightMapIntensity: 5,
-        transparent: true
+        transparent: true,
       }),
       wall_thin_right: new THREE.MeshBasicMaterial({
-        map: textureLoader.load(PATH + 'wall_thin_right.png'),
-        aoMap: textureLoader.load(PATH + 'wall_thin_right_normal_map.png'),
+        map: textureLoader.load(PATH + "wall_thin_right.png"),
+        aoMap: textureLoader.load(PATH + "wall_thin_right_normal_map.png"),
         aoMapIntensity: 1.2,
         side: THREE.DoubleSide,
-        lightMap: textureLoader.load(PATH + 'wall_light_map.png'),
+        lightMap: textureLoader.load(PATH + "wall_light_map.png"),
         lightMapIntensity: 5,
-        transparent: true
+        transparent: true,
       }),
-      floor: new THREE.MeshBasicMaterial({ map: floorTexture })
-    }
+      floor: new THREE.MeshBasicMaterial({ map: floorTexture }),
+    };
 
     this._levelData = null;
     this._currentLevel = 0;
@@ -63,10 +63,12 @@ export default class LevelManager {
   }
 
   _loadLevel(cameraWrapper, scene) {
-    if (this._currentLevel === undefined ||
+    if (
+      this._currentLevel === undefined ||
       this._currentLevel === null ||
       this._currentLevel < 0 ||
-      this._currentLevel >= levels.length) {
+      this._currentLevel >= levels.length
+    ) {
       return null;
     }
 
@@ -89,8 +91,8 @@ export default class LevelManager {
 
     const levelData = {
       meshes: new THREE.Group(),
-      entities: []
-    }
+      entities: [],
+    };
 
     for (let y = 0; y < lines.length; y++) {
       for (let x = 0; x < lines[y].length; x++) {
@@ -102,8 +104,11 @@ export default class LevelManager {
         const actualY = y - startPos.y;
 
         if (lines[y][x] === "e") {
-          const enemy = new Entity(cameraWrapper, scene,
-            { x: actualX, y: actualY }
+          const enemy = new Entity(
+            cameraWrapper,
+            scene,
+            { x: actualX, y: actualY },
+            this._player.damage.bind(this._player)
           );
           enemy.mesh.type = ENTITY_MESH_TYPE;
 
@@ -111,10 +116,11 @@ export default class LevelManager {
           levelData.meshes.add(enemy.mesh);
         } else if (lines[y][x] === "+") {
           for (let position = -1; position <= 1; position++) {
-            if (y + position >= 0 &&
+            if (
+              y + position >= 0 &&
               y + position < lines.length &&
-              lines[y + position][x] === "|") {
-
+              lines[y + position][x] === "|"
+            ) {
               let mesh;
               if (position > 0) {
                 mesh = this._createMesh(0.5, this._textures.wall_thin_left);
@@ -131,10 +137,11 @@ export default class LevelManager {
               levelData.meshes.add(mesh);
             }
 
-            if (x + position >= 0 &&
+            if (
+              x + position >= 0 &&
               x + position < lines[y].length &&
-              lines[y][x + position] === "-") {
-
+              lines[y][x + position] === "-"
+            ) {
               let mesh;
               if (position < 0) {
                 mesh = this._createMesh(0.5, this._textures.wall_thin_left);
@@ -187,12 +194,12 @@ export default class LevelManager {
           })
         );
 
-        if (intersects.length > 0 && 
-          intersects[0].object.type == ENTITY_MESH_TYPE) {
-
+        if (
+          intersects.length > 0 &&
+          intersects[0].object.type == ENTITY_MESH_TYPE
+        ) {
           for (const entity of levelData.entities) {
             if (entity.mesh.id == intersects[0].object.id) {
-
               entity.damage(
                 calculateDamage(intersects[0].distance),
                 function () {
@@ -201,17 +208,18 @@ export default class LevelManager {
 
                   levelData.entities = levelData.entities.filter((object) => {
                     return object != entity;
-                  })
+                  });
 
                   this._requestFrame();
                 }.bind(this)
-              )
+              );
 
               break;
             }
           }
         }
-      }.bind(this));
+      }.bind(this)
+    );
 
     return levelData;
   }
@@ -222,7 +230,7 @@ export default class LevelManager {
 
   update(cameraWrapper, scene, delta) {
     if (!this._levelData) {
-      this._levelData = this._loadLevel(cameraWrapper, scene)
+      this._levelData = this._loadLevel(cameraWrapper, scene);
       scene.add(this._levelData.meshes);
 
       return true;
@@ -233,8 +241,12 @@ export default class LevelManager {
       update = entity.update(delta) || update;
     }
 
-    update = this._forceFrameUpdate || update
+    update = this._forceFrameUpdate || update;
     this._forceFrameUpdate = false;
     return update;
+  }
+
+  handleGameOver() {
+    console.log("Game Over!");
   }
 }

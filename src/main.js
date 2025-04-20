@@ -14,8 +14,7 @@ const levelManager = new LevelManager(player);
   const delta = clock.getDelta();
   requestAnimationFrame(render);
 
-  if (player.update(delta) ||
-    levelManager.update(camera, scene, delta)) {
+  if (player.update(delta) || levelManager.update(camera, scene, delta)) {
     camera.update(delta);
 
     console.log("Rendered!");

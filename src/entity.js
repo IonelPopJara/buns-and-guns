@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { Collider, Direction } from "./collider";
 import { Vector3 } from "three/webgpu";
-import { texture } from "three/tsl";
 
 const MAX_HP = 8;
 const WALK_FRAMES = 4;
@@ -23,7 +22,7 @@ export default class Entity extends THREE.Object3D {
   _walkTextures;
   _hitTexture;
 
-  constructor(cameraWrapper, scene, position) {
+  constructor(cameraWrapper, scene, position, deathHandler) {
     super();
 
     this._hp = MAX_HP;
@@ -32,16 +31,21 @@ export default class Entity extends THREE.Object3D {
     this._scene = scene;
     this._camera = cameraWrapper.camera;
     this._cameraCollider = cameraWrapper.collider;
+    this._deathHandler = deathHandler || null;
 
     const textureLoader = new THREE.TextureLoader();
     this._hitTexture = textureLoader.load(PATH + "hit.png");
     this._walkTextures = [];
     for (let frame = 1; frame <= WALK_FRAMES; frame++) {
-      this._walkTextures.push(textureLoader.load(PATH + "/walk/" + frame + ".png"))
+      this._walkTextures.push(
+        textureLoader.load(PATH + "/walk/" + frame + ".png")
+      );
     }
     this._deathTextures = [];
     for (let frame = 1; frame <= DEATH_FRAMES; frame++) {
-      this._deathTextures.push(textureLoader.load(PATH + "/death/" + frame + ".png"))
+      this._deathTextures.push(
+        textureLoader.load(PATH + "/death/" + frame + ".png")
+      );
     }
 
     this._mesh = _createMesh(position.x, position.y);
@@ -64,13 +68,13 @@ export default class Entity extends THREE.Object3D {
     this._mesh.type = null;
 
     let index = 0;
-    this._mesh.material =
-      this._generateMaterial(this._deathTextures[index++]);
+    this._mesh.material = this._generateMaterial(this._deathTextures[index++]);
 
     this._animationId = setInterval(() => {
       if (index < this._deathTextures.length) {
-        this._mesh.material =
-          this._generateMaterial(this._deathTextures[index++]);
+        this._mesh.material = this._generateMaterial(
+          this._deathTextures[index++]
+        );
       } else {
         this._dead = true;
 
@@ -91,11 +95,9 @@ export default class Entity extends THREE.Object3D {
     }
 
     let index = 0;
-    this._mesh.material =
-      this._generateMaterial(this._walkTextures[index++]);
+    this._mesh.material = this._generateMaterial(this._walkTextures[index++]);
     this._animationId = setInterval(() => {
-      this._mesh.material =
-        this._generateMaterial(this._walkTextures[index++]);
+      this._mesh.material = this._generateMaterial(this._walkTextures[index++]);
 
       index = index % this._walkTextures.length;
     }, FRAME_TIME);
@@ -107,11 +109,9 @@ export default class Entity extends THREE.Object3D {
     }
 
     let index = 0;
-    this._mesh.material =
-      this._generateMaterial(this._hitTexture);
+    this._mesh.material = this._generateMaterial(this._hitTexture);
     this._animationId = setInterval(() => {
-      this._mesh.material =
-        this._generateMaterial(this._walkTextures[index++]);
+      this._mesh.material = this._generateMaterial(this._walkTextures[index++]);
 
       index = index % this._walkTextures.length;
     }, FRAME_TIME);
@@ -121,7 +121,7 @@ export default class Entity extends THREE.Object3D {
     return new THREE.MeshBasicMaterial({
       map: texture,
       transparent: true,
-    })
+    });
   }
 
   damage(damage, deathHandler) {
@@ -140,10 +140,16 @@ export default class Entity extends THREE.Object3D {
 
   update(delta) {
     // Update logic for the entity can be added here
-    this._mesh.lookAt(new Vector3(this._camera.position.x,
-      this._mesh.position.y, this._camera.position.z));
+    this._mesh.lookAt(
+      new Vector3(
+        this._camera.position.x,
+        this._mesh.position.y,
+        this._camera.position.z
+      )
+    );
 
-    if (this._hp > 0) { // still alive
+    if (this._hp > 0) {
+      // still alive
       // Get the world direction of the entity
       const entityDirection = new THREE.Vector3();
       this._mesh.getWorldDirection(entityDirection);
@@ -155,13 +161,14 @@ export default class Entity extends THREE.Object3D {
         this._cameraCollider
       );
 
+      const playerDistanceThreshold = 0.5;
       if (firstIntersectName === "cameraCollider") {
         // Update position
         if (
           this._collider.getAllowedTravelDistanceWithCamera(
             Direction.FORWARD,
             this._cameraCollider
-          ) > 0
+          ) > playerDistanceThreshold
         ) {
           // Create a new vector without the y component
           const newDirection = new THREE.Vector3(
@@ -170,6 +177,13 @@ export default class Entity extends THREE.Object3D {
             entityDirection.z
           );
           this._mesh.position.addScaledVector(newDirection, delta);
+        } else {
+          if (this._deathHandler !== null && this._deathHandler !== undefined) {
+            let damage = 1; // For now
+            this._deathHandler(damage);
+          } else {
+            console.warn("No death handler provided for the entity.");
+          }
         }
 
         return true;

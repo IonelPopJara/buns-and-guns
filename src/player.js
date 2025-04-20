@@ -21,6 +21,9 @@ const KEYCODE = {
   ARROW_RIGHT: 39,
 };
 
+const MAX_HP = 10;
+const DAMAGE_COOLDOWN = 300;
+
 export default class Player {
   _fireEventHandler;
   _controls;
@@ -31,6 +34,10 @@ export default class Player {
   _isRotating;
 
   constructor(cameraWrapper, scene) {
+    // Initialize HP
+    this._hp = MAX_HP;
+    this._canDamage = true;
+
     CameraControls.install({ THREE: THREE });
     this._controls = new CameraControls(
       cameraWrapper.camera,
@@ -39,17 +46,21 @@ export default class Player {
 
     this._collider = new Collider(cameraWrapper.camera, scene);
 
-    new Gun(function (calculateDamage) {
-      if (this._fireEventHandler) {
-        const aimDirection = new THREE.Vector3();
-        cameraWrapper.camera.getWorldDirection(aimDirection);
-        aimDirection.normalize();
+    new Gun(
+      function (calculateDamage) {
+        if (this._fireEventHandler) {
+          const aimDirection = new THREE.Vector3();
+          cameraWrapper.camera.getWorldDirection(aimDirection);
+          aimDirection.normalize();
 
-        this._fireEventHandler(calculateDamage,
-          cameraWrapper.camera.position,
-          aimDirection)
-      }
-    }.bind(this));
+          this._fireEventHandler(
+            calculateDamage,
+            cameraWrapper.camera.position,
+            aimDirection
+          );
+        }
+      }.bind(this)
+    );
 
     // Movement attributes
     this._rotateSpeed = 0.1;
@@ -63,37 +74,61 @@ export default class Player {
     };
 
     // WASD block
-    const keyW = new HoldEvent.KeyboardKeyHold(KEYCODE.W, HOLD_DURATION)
+    const keyW = new HoldEvent.KeyboardKeyHold(KEYCODE.W, HOLD_DURATION);
     keyW.addEventListener(
-      "holding", function () { this._movementVector.up = 1; }.bind(this)
+      "holding",
+      function () {
+        this._movementVector.up = 1;
+      }.bind(this)
     );
     keyW.addEventListener(
-      "holdEnd", function () { this._movementVector.up = 0; }.bind(this)
-    )
+      "holdEnd",
+      function () {
+        this._movementVector.up = 0;
+      }.bind(this)
+    );
 
-    const keyA = new HoldEvent.KeyboardKeyHold(KEYCODE.A, HOLD_DURATION)
+    const keyA = new HoldEvent.KeyboardKeyHold(KEYCODE.A, HOLD_DURATION);
     keyA.addEventListener(
-      "holding", function () { this._movementVector.left = -1; }.bind(this)
+      "holding",
+      function () {
+        this._movementVector.left = -1;
+      }.bind(this)
     );
     keyA.addEventListener(
-      "holdEnd", function () { this._movementVector.left = 0; }.bind(this)
-    )
+      "holdEnd",
+      function () {
+        this._movementVector.left = 0;
+      }.bind(this)
+    );
 
-    const keyS = new HoldEvent.KeyboardKeyHold(KEYCODE.S, HOLD_DURATION)
+    const keyS = new HoldEvent.KeyboardKeyHold(KEYCODE.S, HOLD_DURATION);
     keyS.addEventListener(
-      "holding", function () { this._movementVector.down = -1; }.bind(this)
+      "holding",
+      function () {
+        this._movementVector.down = -1;
+      }.bind(this)
     );
     keyS.addEventListener(
-      "holdEnd", function () { this._movementVector.down = 0; }.bind(this)
-    )
+      "holdEnd",
+      function () {
+        this._movementVector.down = 0;
+      }.bind(this)
+    );
 
-    const keyD = new HoldEvent.KeyboardKeyHold(KEYCODE.D, HOLD_DURATION)
+    const keyD = new HoldEvent.KeyboardKeyHold(KEYCODE.D, HOLD_DURATION);
     keyD.addEventListener(
-      "holding", function () { this._movementVector.right = 1; }.bind(this)
+      "holding",
+      function () {
+        this._movementVector.right = 1;
+      }.bind(this)
     );
     keyD.addEventListener(
-      "holdEnd", function () { this._movementVector.right = 0; }.bind(this)
-    )
+      "holdEnd",
+      function () {
+        this._movementVector.right = 0;
+      }.bind(this)
+    );
 
     // Arrows block
     const arrowLeft = new HoldEvent.KeyboardKeyHold(
@@ -101,14 +136,15 @@ export default class Player {
       HOLD_DURATION
     );
     arrowLeft.addEventListener(
-      "holding", function (event) {
+      "holding",
+      function (event) {
         this._isRotating = true;
 
         this._controls.rotate(
           AIM_SENSITIVITY *
-          THREE.MathUtils.DEG2RAD *
-          event.deltaTime *
-          this._rotateSpeed,
+            THREE.MathUtils.DEG2RAD *
+            event.deltaTime *
+            this._rotateSpeed,
           0,
           false
         );
@@ -121,7 +157,10 @@ export default class Player {
       }.bind(this)
     );
     arrowLeft.addEventListener(
-      "holdEnd", function () { this._isRotating = false; }.bind(this)
+      "holdEnd",
+      function () {
+        this._isRotating = false;
+      }.bind(this)
     );
 
     const arrowRight = new HoldEvent.KeyboardKeyHold(
@@ -129,13 +168,14 @@ export default class Player {
       HOLD_DURATION
     );
     arrowRight.addEventListener(
-      "holding", function (event) {
+      "holding",
+      function (event) {
         this._isRotating = true;
         this._controls.rotate(
           -AIM_SENSITIVITY *
-          THREE.MathUtils.DEG2RAD *
-          event.deltaTime *
-          this._rotateSpeed,
+            THREE.MathUtils.DEG2RAD *
+            event.deltaTime *
+            this._rotateSpeed,
           0,
           false
         );
@@ -148,7 +188,10 @@ export default class Player {
       }.bind(this)
     );
     arrowRight.addEventListener(
-      "holdEnd", function () { this._isRotating = false; }.bind(this)
+      "holdEnd",
+      function () {
+        this._isRotating = false;
+      }.bind(this)
     );
   }
 
@@ -217,4 +260,32 @@ export default class Player {
 
     return this._controls.update(delta);
   }
+
+  damage(damage) {
+    if (this._hp <= 0 || damage <= 0 || !this._canDamage) {
+      return false;
+    }
+
+    this._canDamage = false;
+
+    this._hp -= damage;
+
+    if (this._hp <= 0) {
+      if (deathHandler) {
+        deathHandler();
+      }
+      // Fire death event
+    } else {
+      console.log("Player is hit, remaining HP: " + this._hp);
+      // Set a timeout to allow damage again after a cooldown
+      setTimeout(() => {
+        this._canDamage = true;
+      }, DAMAGE_COOLDOWN);
+    }
+  }
 }
+
+let deathHandler;
+document.addOnDeathHandler = function (handler) {
+  deathHandler = handler;
+};
