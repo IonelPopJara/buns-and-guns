@@ -1,3 +1,5 @@
+import { isPlaying } from "./main";
+
 const FRAMES = 7;
 const FRAME_PATH = "/textures/gun/";
 const FRAME_TIME = 42;
@@ -17,6 +19,10 @@ export default class Gun {
 
         document.getElementById("ui").appendChild(this._image)
         document.addEventListener("keyup", function (event) {
+            if(!isPlaying()) {
+                return;
+            }
+            
             if (event.key == " ") {
                 this._animate()
 

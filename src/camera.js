@@ -1,7 +1,7 @@
 import * as THREE from "three";
 import {
   ChromaticAberrationEffect,
-  ColorDepthEffect, EffectComposer, 
+  ColorDepthEffect, EffectComposer,
   EffectPass, PixelationEffect,
   RenderPass, VignetteEffect
 } from "postprocessing";

@@ -10,13 +10,36 @@ const camera = new CameraWrapper(scene);
 const player = new Player(camera, scene);
 const levelManager = new LevelManager(player);
 
+let playing = false;
+
 (function render() {
   const delta = clock.getDelta();
+
   requestAnimationFrame(render);
 
-  if (player.update(delta) || levelManager.update(camera, scene, delta)) {
-    camera.update(delta);
+  if (playing || !levelManager.isLevelLoaded()) {
+    let update = false;
+    update = player.update(delta) || update;
+    update = levelManager.update(camera, scene, delta) || update;
 
-    console.log("Rendered!");
+    if (update) {
+      camera.update(delta);
+    }
+  } else {
+    camera.update(delta);
   }
 })();
+
+function isPlaying() {
+  return playing;
+}
+
+document.pause = function () {
+  playing = false;
+};
+
+document.resume = function () {
+  playing = true;
+};
+
+export { isPlaying };
