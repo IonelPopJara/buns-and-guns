@@ -112,3 +112,25 @@ button:active {
   bottom: 0;
   transform: translateX(-50%);
 }
+
+.hp-bar-container {
+  width: 30vw;
+  position: absolute;
+  bottom: 5vmin;
+  left: 5vmin;
+  height: 3vw;
+  border: 0.3vw solid black;
+  background: rgb(16, 1, 1);
+}
+
+.hp-bar {
+  height: 100%;
+  position: relative;
+  box-sizing: border-box;
+  color: white;
+  font-size: 3vmin;
+  display: flex;
+  padding-left: 1vmin;
+  align-items: center;
+  background: rgb(79, 4, 18);
+}
