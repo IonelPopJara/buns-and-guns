@@ -2,7 +2,7 @@ import * as THREE from "three";
 import { Collider, Direction } from "./collider";
 import { Vector3 } from "three/webgpu";
 import { texture } from "three/tsl";
-import { isPlaying } from "./main";
+import { isPaused } from "./main";
 
 const MAX_HP = 8;
 const WALK_FRAMES = 4;
@@ -73,7 +73,7 @@ export default class Entity extends THREE.Object3D {
     this._mesh.material = this._generateMaterial(this._deathTextures[index++]);
 
     this._animationId = setInterval(() => {
-      if (!isPlaying()) {
+      if (isPaused()) {
         return;
       }
 
@@ -103,7 +103,7 @@ export default class Entity extends THREE.Object3D {
     let index = 0;
     this._mesh.material = this._generateMaterial(this._walkTextures[index++]);
     this._animationId = setInterval(() => {
-      if (!isPlaying()) {
+      if (isPaused()) {
         return;
       }
 
@@ -121,7 +121,7 @@ export default class Entity extends THREE.Object3D {
     let index = 0;
     this._mesh.material = this._generateMaterial(this._hitTexture);
     this._animationId = setInterval(() => {
-      if (!isPlaying()) {
+      if (isPaused()) {
         return;
       }
 

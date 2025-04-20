@@ -3,7 +3,7 @@ import CameraControls from "camera-controls";
 import * as HoldEvent from "https://unpkg.com/hold-event@0.2.0/dist/hold-event.module.js";
 import { Collider, Direction } from "./collider";
 import Gun from "./gun";
-import { isPlaying } from "./main";
+import { isPaused } from "./main";
 
 const HOLD_DURATION = 16.666;
 const AIM_SENSITIVITY = 0.13;
@@ -22,8 +22,13 @@ const KEYCODE = {
   ARROW_RIGHT: 39,
 };
 
-const MAX_HP = 10;
+const MAX_HP = 5;
 const DAMAGE_COOLDOWN = 300;
+
+let deathHandler;
+document.addOnDeathHandler = function (handler) {
+  deathHandler = handler;
+};
 
 export default class Player {
   _fireEventHandler;
@@ -80,7 +85,7 @@ export default class Player {
     keyW.addEventListener(
       "holding",
       function () {
-        if (isPlaying()) {
+        if (!isPaused()) {
           this._movementVector.up = 1;
         }
       }.bind(this)
@@ -96,7 +101,7 @@ export default class Player {
     keyA.addEventListener(
       "holding",
       function () {
-        if (isPlaying()) {
+        if (!isPaused()) {
           this._movementVector.left = -1;
         }
       }.bind(this)
@@ -112,7 +117,7 @@ export default class Player {
     keyS.addEventListener(
       "holding",
       function () {
-        if (isPlaying()) {
+        if (!isPaused()) {
           this._movementVector.down = -1;
         }
       }.bind(this)
@@ -128,7 +133,7 @@ export default class Player {
     keyD.addEventListener(
       "holding",
       function () {
-        if (isPlaying()) {
+        if (!isPaused()) {
           this._movementVector.right = 1;
         }
       }.bind(this)
@@ -148,7 +153,7 @@ export default class Player {
     arrowLeft.addEventListener(
       "holding",
       function (event) {
-        if (!isPlaying()) {
+        if (isPaused()) {
           return;
         }
 
@@ -156,9 +161,9 @@ export default class Player {
 
         this._controls.rotate(
           AIM_SENSITIVITY *
-            THREE.MathUtils.DEG2RAD *
-            event.deltaTime *
-            this._rotateSpeed,
+          THREE.MathUtils.DEG2RAD *
+          event.deltaTime *
+          this._rotateSpeed,
           0,
           false
         );
@@ -184,7 +189,7 @@ export default class Player {
     arrowRight.addEventListener(
       "holding",
       function (event) {
-        if (!isPlaying()) {
+        if (isPaused()) {
           return;
         }
 
@@ -192,9 +197,9 @@ export default class Player {
 
         this._controls.rotate(
           -AIM_SENSITIVITY *
-            THREE.MathUtils.DEG2RAD *
-            event.deltaTime *
-            this._rotateSpeed,
+          THREE.MathUtils.DEG2RAD *
+          event.deltaTime *
+          this._rotateSpeed,
           0,
           false
         );
@@ -325,8 +330,3 @@ export default class Player {
     }
   }
 }
-
-let deathHandler;
-document.addOnDeathHandler = function (handler) {
-  deathHandler = handler;
-};

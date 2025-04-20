@@ -2,6 +2,13 @@ body {
   margin: 0;
   background: black;
   overflow: hidden!important;
+  font-family: "VT323";
+  user-select: none;
+}
+
+body h1 {
+  font-weight: 800;
+  margin: 0;
 }
 
 .ui {
@@ -10,13 +17,53 @@ body {
   height: 100%;
 }
 
+.ui > .controls {
+  position: absolute;
+  font-size: 3vmin;
+  color: white;
+  left: 5vmin;
+  top: 5vmin;
+  margin: 0;
+}
+
 .paused {
   width: 100%;
   height: 100%;
   position: fixed;
   z-index: 100;
+  flex-direction: column;
   background: rgb(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
+  color: white;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.paused h1 {
+  font-size: 12vmin;
+}
+
+.paused p {
+  width: 70%;
+  text-align: center;
+  font-size: 3vmin;
+}
+
+button {
+  color: #fff;
+  padding: 15px 40px 15px 40px;
+  margin: 10px;
+  font-size: 5vmin;
+  font-family: "VT323";
+  border: 0;
+  box-shadow: 0px 5px black, 0px -5px black, 5px 0px black, -5px 0px black, 0px 10px #00000038, 5px 5px #00000038, -5px 5px #00000038, inset 0px 5px #ffffff36 ;
+  cursor: pointer;
+}
+
+button:active {
+  transform: translateY(5px);
+  box-shadow: 0px 5px black, 0px -5px black, 5px 0px black, -5px 0px black,inset 0px 5px #00000038;
 }
 
 .shotgun-reticle {

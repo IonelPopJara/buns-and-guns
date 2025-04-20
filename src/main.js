@@ -3,6 +3,8 @@ import Player from "./player";
 import CameraWrapper from "./camera";
 import LevelManager from "./levels/levelManager";
 
+let paused = true;
+
 const clock = new THREE.Clock();
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x000000, 1, 10);
@@ -16,14 +18,11 @@ function handleNextLevel() {
 const player = new Player(camera, scene, handleNextLevel);
 const levelManager = new LevelManager(player, camera, scene);
 
-let playing = false;
-
 (function render() {
   const delta = clock.getDelta();
-
   requestAnimationFrame(render);
 
-  if (playing || !levelManager.isLevelLoaded()) {
+  if (!paused || !levelManager.isLevelLoaded()) {
     let update = false;
     update = player.update(delta) || update;
     update = levelManager.update(camera, scene, delta) || update;
@@ -36,16 +35,21 @@ let playing = false;
   }
 })();
 
-function isPlaying() {
-  return playing;
+document.pauseInternal = function () {
+  paused = true;
+};
+
+document.resumeInternal = function () {
+  paused = false;
+};
+
+function isPaused() {
+  return paused;
 }
 
-document.pause = function () {
-  playing = false;
-};
+// load the game manager
+const script = document.createElement('script');
+script.src = "./src/gameManager.js";
+document.body.append(script);
 
-document.resume = function () {
-  playing = true;
-};
-
-export { isPlaying };
+export { isPaused };
