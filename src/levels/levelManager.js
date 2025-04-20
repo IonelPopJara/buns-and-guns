@@ -1,7 +1,6 @@
 import * as THREE from "three";
 import { levels } from "./levelData";
 import Entity from "../entity";
-import { isPlaying } from "../main";
 
 const PATH = "/textures/level/";
 const ENTITY_MESH_TYPE = "Entity";

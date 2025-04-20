@@ -1,4 +1,4 @@
-import { isPlaying } from "./main";
+import { isPaused } from "./main";
 
 const FRAMES = 7;
 const FRAME_PATH = "/textures/gun/";
@@ -19,7 +19,7 @@ export default class Gun {
 
         document.getElementById("ui").appendChild(this._image)
         document.addEventListener("keyup", function (event) {
-            if(!isPlaying()) {
+            if(isPaused()) {
                 return;
             }
             
