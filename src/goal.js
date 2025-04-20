@@ -4,21 +4,25 @@ export default class Goal extends THREE.Object3D {
   _mesh;
   constructor(position) {
     super();
+
     const goalMaterial = new THREE.MeshBasicMaterial({
-      color: 0x0000ff,
+      color: 0xffffff,
       side: THREE.DoubleSide,
       wireframe: true,
     });
 
-    const goalGeometry = new THREE.SphereGeometry(0.5);
+    // Create a sphere and stretch it into an ellipsoid
+    const goalGeometry = new THREE.SphereGeometry(0.5, 32, 32);
     const mesh = new THREE.Mesh(goalGeometry, goalMaterial);
+
+    // Scale it to make an ellipsoid (egg-ish shape)
+    mesh.scale.set(0.6, 1, 0.6); // narrower and taller
 
     mesh.position.x = position.x;
     mesh.position.z = position.y;
-    mesh.position.y = -0.5; // Set the height of the goal
+    mesh.position.y = 0; // base aligned
 
     this.add(mesh);
-
     this._mesh = mesh;
   }
 
