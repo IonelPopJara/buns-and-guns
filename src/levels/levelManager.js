@@ -2,7 +2,6 @@ import * as THREE from "three";
 import { levels } from "./levelData";
 import Entity from "../entity";
 import Goal from "../goal";
-import { isPlaying } from "../main";
 
 const PATH = "/textures/level/";
 const ENTITY_MESH_TYPE = "Entity";
@@ -243,13 +242,37 @@ export default class LevelManager {
   }
 
   goToNextLevel() {
+    if (!this._levelData) {
+      return;
+    }
+
+    if (this._currentLevel >= levels.length) {
+      console.warn("No more levels to load");
+      console.warn("Game Over!");
+      return;
+    }
+
     console.warn("Load next level here");
+    this._levelData.meshes.clear();
+    this._levelData.entities.forEach((entity) => {
+      this._scene.remove(entity.mesh);
+    });
+    this._levelData = null;
+
+    this._player._controls.reset();
+    this._currentLevel++;
   }
 
   update(cameraWrapper, scene, delta) {
-    console.log(`Level loaded: ${this.isLevelLoaded()}`);
     if (!this.isLevelLoaded()) {
+      console.log(`Level loaded: ${this.isLevelLoaded()}`);
+
       this._levelData = this._loadLevel(cameraWrapper, scene);
+
+      if (!this._levelData) {
+        // If loadlevel returns null, it means that there are no more levels to load
+        return;
+      }
       scene.add(this._levelData.meshes);
 
       this._requestFrame();
@@ -261,7 +284,6 @@ export default class LevelManager {
     }
 
     let goalUpdate = this._goal.update(delta);
-    // FIXME: The goal only updates when the entities or the player are moving
 
     update = this._forceFrameUpdate || update || goalUpdate;
     this._forceFrameUpdate = false;

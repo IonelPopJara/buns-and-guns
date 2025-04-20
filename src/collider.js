@@ -92,7 +92,7 @@ class Collider {
       return false;
     }
 
-    return collideData.object.type === "Goal" && collideData.distance < 0.1;
+    return collideData.object.type === "Goal" && collideData.distance < 0.5;
   }
 
   // Make a decorator for getAllowedTravelDistance to add the camera to the list of objects to intersect
