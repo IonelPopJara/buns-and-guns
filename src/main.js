@@ -48,8 +48,8 @@ function isPaused() {
 }
 
 // load the game manager
-const script = document.createElement('script');
-script.src = "./src/gameManager.js";
+const script = document.createElement("script");
+script.src = "./scripts/gameManager.js";
 document.body.append(script);
 
 export { isPaused };

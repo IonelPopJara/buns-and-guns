@@ -8,7 +8,7 @@ const MAX_HP = 8;
 const WALK_FRAMES = 4;
 const DEATH_FRAMES = 3;
 const FRAME_TIME = 300;
-const PATH = "/textures/entity/bunny/";
+const PATH = "./textures/entity/bunny/";
 
 export default class Entity extends THREE.Object3D {
   _cameraCollider;

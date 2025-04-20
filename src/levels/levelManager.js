@@ -3,7 +3,7 @@ import { levels } from "./levelData";
 import Entity from "../entity";
 import Goal from "../goal";
 
-const PATH = "/textures/level/";
+const PATH = "./textures/level/";
 const ENTITY_MESH_TYPE = "Entity";
 const WALL_MESH_TYPE = "Wall";
 const FLOOR_MESH_TYPE = "Floor";
