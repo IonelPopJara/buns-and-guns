@@ -8,12 +8,14 @@ const WALL_MESH_TYPE = "Wall";
 const FLOOR_MESH_TYPE = "Floor";
 
 export default class LevelManager {
-  _textures;
+  _forceFrameUpdate;
   _levelData;
+  _textures;
   _player;
 
   constructor(player) {
     this._player = player;
+    this._forceFrameUpdate = false;
     const textureLoader = new THREE.TextureLoader();
 
     const floorTexture = textureLoader.load(PATH + '/floor.png');
@@ -181,21 +183,29 @@ export default class LevelManager {
 
         const intersects = raycaster.intersectObjects(
           levelData.meshes.children.filter((object) => {
-            return object.type == "Entity";
+            return !!object.type;
           })
         );
 
-        if (intersects.length > 0) {
+        if (intersects.length > 0 && 
+          intersects[0].object.type == ENTITY_MESH_TYPE) {
+
           for (const entity of levelData.entities) {
             if (entity.mesh.id == intersects[0].object.id) {
-              if (entity.damage(calculateDamage(intersects[0].distance))) {
-                levelData.meshes.remove(intersects[0].object);
-                scene.remove(intersects[0].object);
 
-                levelData.entities = levelData.entities.filter((object) => {
-                  return object != entity;
-                })
-              }
+              entity.damage(
+                calculateDamage(intersects[0].distance),
+                function () {
+                  levelData.meshes.remove(intersects[0].object);
+                  scene.remove(intersects[0].object);
+
+                  levelData.entities = levelData.entities.filter((object) => {
+                    return object != entity;
+                  })
+
+                  this._requestFrame();
+                }.bind(this)
+              )
 
               break;
             }
@@ -204,6 +214,10 @@ export default class LevelManager {
       }.bind(this));
 
     return levelData;
+  }
+
+  _requestFrame() {
+    this._forceFrameUpdate = true;
   }
 
   update(cameraWrapper, scene, delta) {
@@ -219,6 +233,8 @@ export default class LevelManager {
       update = entity.update(delta) || update;
     }
 
+    update = this._forceFrameUpdate || update
+    this._forceFrameUpdate = false;
     return update;
   }
 }

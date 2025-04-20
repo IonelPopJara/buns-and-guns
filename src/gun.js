@@ -26,14 +26,8 @@ export default class Gun {
             }
         }.bind(this))
 
-        this._normalize.bind(this);
         this._calculateDamage.bind(this);
     }
-
-    _normalize(value, min, max) {
-
-    }
-
 
     _calculateDamage(distance) {
         if (distance > FALLOFF_DISTANCE
