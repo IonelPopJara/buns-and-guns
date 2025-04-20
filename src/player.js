@@ -32,6 +32,7 @@ document.addOnDeathHandler = function (handler) {
 
 export default class Player {
   _fireEventHandler;
+  _updateHealthUI;
   _controls;
   _collider;
 
@@ -41,6 +42,7 @@ export default class Player {
 
   constructor(cameraWrapper, scene, handleNextLevel) {
     this._handleNextLevel = handleNextLevel || null;
+
     // Initialize HP
     this._hp = MAX_HP;
     this._canDamage = true;
@@ -68,6 +70,8 @@ export default class Player {
         }
       }.bind(this)
     );
+
+    this._attachHealthBar();
 
     // Movement attributes
     this._rotateSpeed = 0.1;
@@ -219,6 +223,25 @@ export default class Player {
     );
   }
 
+  _attachHealthBar() {
+    const hpBarContainer = document.createElement('div');
+    hpBarContainer.setAttribute('class', 'hp-bar-container');
+    
+    const hpBar = document.createElement('div');
+    hpBar.setAttribute('class', 'hp-bar');
+    hpBar.innerText = "HEALTH"
+
+    document.getElementById("ui").appendChild(hpBarContainer);
+    hpBarContainer.appendChild(hpBar);
+
+    this._updateHealthUI = function(percentage) {
+      const hpPercentage = Math.max(0., Math.min(1., percentage))
+      hpBar.style.width = (hpPercentage * 100) + "%"
+    }
+
+    this._updateHealthUI();
+  }
+
   setOnGunFireEventHandler(eventHandler) {
     this._fireEventHandler = eventHandler;
   }
@@ -317,12 +340,14 @@ export default class Player {
     this._hp -= damage;
 
     if (this._hp <= 0) {
+      this._updateHealthUI(0);
+
       if (deathHandler) {
         deathHandler();
       }
-      // Fire death event
     } else {
-      console.log("Player is hit, remaining HP: " + this._hp);
+      this._updateHealthUI(this._hp / MAX_HP);
+
       // Set a timeout to allow damage again after a cooldown
       setTimeout(() => {
         this._canDamage = true;
