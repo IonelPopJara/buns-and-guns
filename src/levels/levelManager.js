@@ -9,6 +9,11 @@ const WALL_MESH_TYPE = "Wall";
 const FLOOR_MESH_TYPE = "Floor";
 const GOAL_MESH_TYPE = "Goal";
 
+let winHandler;
+document.addOnWinHandler = function (handler) {
+  winHandler = handler;
+};
+
 export default class LevelManager {
   _forceFrameUpdate;
   _levelData;
@@ -246,13 +251,6 @@ export default class LevelManager {
       return;
     }
 
-    if (this._currentLevel >= levels.length) {
-      console.warn("No more levels to load");
-      console.warn("Game Over!");
-      return;
-    }
-
-    console.warn("Load next level here");
     this._levelData.meshes.clear();
     this._levelData.entities.forEach((entity) => {
       this._scene.remove(entity.mesh);
@@ -261,6 +259,14 @@ export default class LevelManager {
 
     this._player._controls.reset();
     this._currentLevel++;
+
+    if (this._currentLevel >= levels.length) {
+      if (winHandler) {
+        winHandler();
+      }
+
+      return;
+    }
   }
 
   update(cameraWrapper, scene, delta) {
@@ -288,9 +294,5 @@ export default class LevelManager {
     update = this._forceFrameUpdate || update || goalUpdate;
     this._forceFrameUpdate = false;
     return update;
-  }
-
-  handleGameOver() {
-    console.log("Game Over!");
   }
 }
