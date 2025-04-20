@@ -1,6 +1,6 @@
 # buns-and-guns
 
-Buns and Guns is a game where you are a priest trying to stop the easter bunny from spreading their pagan rituals in the world. You are the only hope left.
+Buns and Guns is a game where you are a priest trying to stop the Easter Bunny from spreading their pagan rituals in the world. You are the only hope left.
 
 Play the game here: https://mults.itch.io/buns-and-guns
 
@@ -35,4 +35,12 @@ When building for production:
    npm run build
    ```
 
-2. Important: You'll need to add a `.` to the index.html file after building to compile successfully.
+2. Important: You'll need to add a `.` to the paths in `index.html` after building to compile successfully:
+   ```html
+   <!-- Change this -->
+   <script type="module" crossorigin src="/assets/index-8fk2OFK9.js"></script>
+   <link rel="stylesheet" crossorigin href="/assets/index-BInPu93N.css">
+   <!-- To this -->
+   <script type="module" crossorigin src="./assets/index-8fk2OFK9.js"></script>
+   <link rel="stylesheet" crossorigin href="./assets/index-BInPu93N.css">
+   ```
