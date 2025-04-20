@@ -7,8 +7,14 @@ const clock = new THREE.Clock();
 const scene = new THREE.Scene();
 scene.fog = new THREE.Fog(0x000000, 1, 10);
 const camera = new CameraWrapper(scene);
-const player = new Player(camera, scene);
-const levelManager = new LevelManager(player);
+
+function handleNextLevel() {
+  console.log("Next level loaded");
+  levelManager.goToNextLevel();
+}
+
+const player = new Player(camera, scene, handleNextLevel);
+const levelManager = new LevelManager(player, camera, scene);
 
 let playing = false;
 

@@ -66,7 +66,33 @@ class Collider {
 
     const collideData = this._raycast(worldDirection);
 
+    if (collideData != null && collideData.object.type == "Goal") {
+      return 1000;
+    }
+
     return collideData != null ? Math.max(0, collideData.distance - 0.5) : 1000; // big enough to not constraint movements
+  }
+
+  isGoalIntersected(direction) {
+    const worldDirection = new THREE.Vector3();
+    this._object.getWorldDirection(worldDirection);
+    worldDirection.normalize();
+
+    if (direction == Direction.RIGHT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 1.5, 0, "XYZ"));
+    } else if (direction == Direction.BACKWARD) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI, 0, "XYZ"));
+    } else if (direction == Direction.LEFT) {
+      worldDirection.applyEuler(new THREE.Euler(0, Math.PI * 0.5, 0, "XYZ"));
+    }
+
+    const collideData = this._raycast(worldDirection);
+
+    if (collideData == null) {
+      return false;
+    }
+
+    return collideData.object.type === "Goal" && collideData.distance < 0.1;
   }
 
   // Make a decorator for getAllowedTravelDistance to add the camera to the list of objects to intersect

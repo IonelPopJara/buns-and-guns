@@ -1,21 +1,26 @@
 import * as THREE from "three";
 import { levels } from "./levelData";
 import Entity from "../entity";
+import Goal from "../goal";
 import { isPlaying } from "../main";
 
 const PATH = "/textures/level/";
 const ENTITY_MESH_TYPE = "Entity";
 const WALL_MESH_TYPE = "Wall";
 const FLOOR_MESH_TYPE = "Floor";
+const GOAL_MESH_TYPE = "Goal";
 
 export default class LevelManager {
   _forceFrameUpdate;
   _levelData;
   _textures;
   _player;
+  _goal;
 
-  constructor(player) {
+  constructor(player, cameraWrapper, scene) {
     this._player = player;
+    this._cameraWrapper = cameraWrapper;
+    this._scene = scene;
     this._forceFrameUpdate = false;
     const textureLoader = new THREE.TextureLoader();
 
@@ -63,7 +68,7 @@ export default class LevelManager {
     return new THREE.Mesh(new THREE.PlaneGeometry(width, 2), material);
   }
 
-  _loadLevel(cameraWrapper, scene) {
+  _loadLevel() {
     if (
       this._currentLevel === undefined ||
       this._currentLevel === null ||
@@ -106,8 +111,8 @@ export default class LevelManager {
 
         if (lines[y][x] === "e") {
           const enemy = new Entity(
-            cameraWrapper,
-            scene,
+            this._cameraWrapper,
+            this._scene,
             { x: actualX, y: actualY },
             this._player.damage.bind(this._player)
           );
@@ -157,6 +162,10 @@ export default class LevelManager {
               levelData.meshes.add(mesh);
             }
           }
+        } else if (lines[y][x] === "g") {
+          this._goal = new Goal({ x: actualX, y: actualY });
+          this._goal.mesh.type = GOAL_MESH_TYPE;
+          levelData.meshes.add(this._goal.mesh);
         } else {
           const mesh = this._createMesh(1, this._textures.wall);
 
@@ -205,7 +214,7 @@ export default class LevelManager {
                 calculateDamage(intersects[0].distance),
                 function () {
                   levelData.meshes.remove(intersects[0].object);
-                  scene.remove(intersects[0].object);
+                  this._scene.remove(intersects[0].object);
 
                   levelData.entities = levelData.entities.filter((object) => {
                     return object != entity;
@@ -233,7 +242,12 @@ export default class LevelManager {
     return !!this._levelData;
   }
 
+  goToNextLevel() {
+    console.warn("Load next level here");
+  }
+
   update(cameraWrapper, scene, delta) {
+    console.log(`Level loaded: ${this.isLevelLoaded()}`);
     if (!this.isLevelLoaded()) {
       this._levelData = this._loadLevel(cameraWrapper, scene);
       scene.add(this._levelData.meshes);
@@ -243,10 +257,13 @@ export default class LevelManager {
 
     let update = false;
     for (const entity of this._levelData.entities) {
-      update = entity.update(delta) || update;
+      update = entity.update(delta, cameraWrapper.camera) || update;
     }
 
-    update = this._forceFrameUpdate || update;
+    let goalUpdate = this._goal.update(delta);
+    // FIXME: The goal only updates when the entities or the player are moving
+
+    update = this._forceFrameUpdate || update || goalUpdate;
     this._forceFrameUpdate = false;
     return update;
   }
