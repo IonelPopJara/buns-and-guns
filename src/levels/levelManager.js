@@ -1,6 +1,7 @@
 import * as THREE from "three";
 import { levels } from "./levelData";
 import Entity from "../entity";
+import { isPlaying } from "../main";
 
 const PATH = "/textures/level/";
 const ENTITY_MESH_TYPE = "Entity";
@@ -187,7 +188,7 @@ export default class LevelManager {
           })
         );
 
-        if (intersects.length > 0 && 
+        if (intersects.length > 0 &&
           intersects[0].object.type == ENTITY_MESH_TYPE) {
 
           for (const entity of levelData.entities) {
@@ -220,12 +221,16 @@ export default class LevelManager {
     this._forceFrameUpdate = true;
   }
 
+  isLevelLoaded() {
+    return !!this._levelData;
+  }
+
   update(cameraWrapper, scene, delta) {
-    if (!this._levelData) {
+    if (!this.isLevelLoaded()) {
       this._levelData = this._loadLevel(cameraWrapper, scene)
       scene.add(this._levelData.meshes);
 
-      return true;
+      this._requestFrame();
     }
 
     let update = false;

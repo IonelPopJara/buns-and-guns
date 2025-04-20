@@ -3,6 +3,7 @@ import CameraControls from "camera-controls";
 import * as HoldEvent from "https://unpkg.com/hold-event@0.2.0/dist/hold-event.module.js";
 import { Collider, Direction } from "./collider";
 import Gun from "./gun";
+import { isPlaying } from "./main";
 
 const HOLD_DURATION = 16.666;
 const AIM_SENSITIVITY = 0.13;
@@ -65,7 +66,11 @@ export default class Player {
     // WASD block
     const keyW = new HoldEvent.KeyboardKeyHold(KEYCODE.W, HOLD_DURATION)
     keyW.addEventListener(
-      "holding", function () { this._movementVector.up = 1; }.bind(this)
+      "holding", function () {
+        if (isPlaying()) {
+          this._movementVector.up = 1;
+        }
+      }.bind(this)
     );
     keyW.addEventListener(
       "holdEnd", function () { this._movementVector.up = 0; }.bind(this)
@@ -73,7 +78,11 @@ export default class Player {
 
     const keyA = new HoldEvent.KeyboardKeyHold(KEYCODE.A, HOLD_DURATION)
     keyA.addEventListener(
-      "holding", function () { this._movementVector.left = -1; }.bind(this)
+      "holding", function () {
+        if (isPlaying()) {
+          this._movementVector.left = -1;
+        }
+      }.bind(this)
     );
     keyA.addEventListener(
       "holdEnd", function () { this._movementVector.left = 0; }.bind(this)
@@ -81,7 +90,11 @@ export default class Player {
 
     const keyS = new HoldEvent.KeyboardKeyHold(KEYCODE.S, HOLD_DURATION)
     keyS.addEventListener(
-      "holding", function () { this._movementVector.down = -1; }.bind(this)
+      "holding", function () {
+        if (isPlaying()) {
+          this._movementVector.down = -1;
+        }
+      }.bind(this)
     );
     keyS.addEventListener(
       "holdEnd", function () { this._movementVector.down = 0; }.bind(this)
@@ -89,7 +102,11 @@ export default class Player {
 
     const keyD = new HoldEvent.KeyboardKeyHold(KEYCODE.D, HOLD_DURATION)
     keyD.addEventListener(
-      "holding", function () { this._movementVector.right = 1; }.bind(this)
+      "holding", function () {
+        if (isPlaying()) {
+          this._movementVector.right = 1;
+        }
+      }.bind(this)
     );
     keyD.addEventListener(
       "holdEnd", function () { this._movementVector.right = 0; }.bind(this)
@@ -102,6 +119,10 @@ export default class Player {
     );
     arrowLeft.addEventListener(
       "holding", function (event) {
+        if (!isPlaying()) {
+          return;
+        }
+
         this._isRotating = true;
 
         this._controls.rotate(
@@ -130,7 +151,12 @@ export default class Player {
     );
     arrowRight.addEventListener(
       "holding", function (event) {
+        if (!isPlaying()) {
+          return;
+        }
+
         this._isRotating = true;
+        
         this._controls.rotate(
           -AIM_SENSITIVITY *
           THREE.MathUtils.DEG2RAD *
