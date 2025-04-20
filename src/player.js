@@ -39,7 +39,8 @@ export default class Player {
   _rotateSpeed;
   _isRotating;
 
-  constructor(cameraWrapper, scene) {
+  constructor(cameraWrapper, scene, handleNextLevel) {
+    this._handleNextLevel = handleNextLevel || null;
     // Initialize HP
     this._hp = MAX_HP;
     this._canDamage = true;
@@ -237,6 +238,12 @@ export default class Player {
         ),
         false
       );
+
+      let goalIntersected = this._collider.isGoalIntersected(Direction.FORWARD);
+      if (goalIntersected) {
+        console.log("Goal intersected!");
+        this._handleNextLevel();
+      }
     } else if (movementDirection.y < 0) {
       this._controls.forward(
         -Math.min(
@@ -245,6 +252,13 @@ export default class Player {
         ),
         false
       );
+
+      let goalIntersected = this._collider.isGoalIntersected(
+        Direction.BACKWARD
+      );
+      if (goalIntersected) {
+        console.log("Goal intersected!");
+      }
     }
 
     // Move left/right
@@ -257,6 +271,11 @@ export default class Player {
         0,
         false
       );
+
+      let goalIntersected = this._collider.isGoalIntersected(Direction.RIGHT);
+      if (goalIntersected) {
+        console.log("Goal intersected!");
+      }
     } else if (movementDirection.x < 0) {
       this._controls.truck(
         -Math.min(
@@ -266,6 +285,10 @@ export default class Player {
         0,
         false
       );
+      let goalIntersected = this._collider.isGoalIntersected(Direction.LEFT);
+      if (goalIntersected) {
+        console.log("Goal intersected!");
+      }
     }
 
     // Reset movement vector

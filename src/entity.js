@@ -30,8 +30,8 @@ export default class Entity extends THREE.Object3D {
     this._hp = MAX_HP;
     this._dead = false;
 
-    this._scene = scene;
-    this._camera = cameraWrapper.camera;
+    // this._scene = scene;
+    // this._camera = cameraWrapper.camera;
     this._cameraCollider = cameraWrapper.collider;
     this._deathHandler = deathHandler || null;
 
@@ -152,14 +152,10 @@ export default class Entity extends THREE.Object3D {
     }
   }
 
-  update(delta) {
+  update(delta, camera) {
     // Update logic for the entity can be added here
     this._mesh.lookAt(
-      new Vector3(
-        this._camera.position.x,
-        this._mesh.position.y,
-        this._camera.position.z
-      )
+      new Vector3(camera.position.x, this._mesh.position.y, camera.position.z)
     );
 
     if (this._hp > 0) {
@@ -168,13 +164,11 @@ export default class Entity extends THREE.Object3D {
       const entityDirection = new THREE.Vector3();
       this._mesh.getWorldDirection(entityDirection);
       entityDirection.normalize();
-
       // Get the first intersection with the camera
       const firstIntersectName = this._collider.getFirstIntersect(
         entityDirection,
         this._cameraCollider
       );
-
       const playerDistanceThreshold = 0.5;
       if (firstIntersectName === "cameraCollider") {
         // Update position
@@ -199,7 +193,6 @@ export default class Entity extends THREE.Object3D {
             console.warn("No death handler provided for the entity.");
           }
         }
-
         return true;
       }
     } else if (!this._dead) {
